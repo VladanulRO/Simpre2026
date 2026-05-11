@@ -1,6 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getFlashcards, createFlashcards } from "@/utils/flashcardFunctions";
+import {
+  getFlashcards,
+  createFlashcards,
+  deleteFlashcard,
+} from "@/utils/flashcardFunctions";
 import { authRequest } from "@/utils/authFunctions";
 import Spinner from "./Spinner";
 import { sendCardsByEmail } from "@/utils/sendEmailFunction";
@@ -47,6 +51,18 @@ const MainPage = () => {
       fetchFlashcards(savedUser);
     }
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!confirm("Sigur vrei să ștergi acest set de flashcards?")) return;
+
+    const success = await deleteFlashcard(id);
+    if (success) {
+      // Scoatem cardul din listă fără să dăm refresh
+      setFlashcards((prev) => prev.filter((item) => item._id !== id));
+    } else {
+      alert("Eroare la ștergere");
+    }
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -201,13 +217,23 @@ const MainPage = () => {
               <h2 className="text-xl font-bold text-gray-800">
                 Subiect: {entry.topic}
               </h2>
-              <button
-                onClick={() => handleSendEmail(entry.topic, entry.cards)}
-                className="bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 transition flex items-center gap-2 text-sm font-medium"
-              >
-                <span>Trimite pe Mail</span>
-                <span>✉️</span>
-              </button>
+
+              {/*button container*/}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleSendEmail(entry.topic, entry.cards)}
+                  className="bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 transition flex items-center gap-2 text-sm font-medium"
+                >
+                  <span>Email</span> <span>✉️</span>
+                </button>
+
+                <button
+                  onClick={() => handleDelete(entry._id)}
+                  className="bg-red-500 text-white px-3 py-1.5 rounded-md hover:bg-red-700 transition flex items-center gap-2 text-sm font-medium"
+                >
+                  <span>Șterge</span> <span>🗑️</span>
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">

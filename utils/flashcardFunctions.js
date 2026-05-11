@@ -14,3 +14,10 @@ export const createFlashcards = async (topic, user) => {
   if (!response.ok) return null;
   return response.json();
 };
+
+export const deleteFlashcard = async (id) => {
+  const response = await fetch(`/api/flashcards?id=${id}`, {
+    method: "DELETE",
+  });
+  return response.ok;
+};

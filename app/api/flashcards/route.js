@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCollection } from "@/lib/mongodb";
 import openai from "@/lib/openai";
+import { ObjectId } from "mongodb";
 
 // Metoda GET
 export async function GET(request) {
@@ -59,5 +60,29 @@ export async function POST(request) {
       { error: "A apărut o eroare la generarea sau salvarea cardurilor." },
       { status: 500 },
     );
+  }
+}
+
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) return NextResponse.json({ error: "ID lipsă" }, { status: 400 });
+
+    const records = await getCollection("flashcards");
+
+    const result = await records.deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 1) {
+      return NextResponse.json({ message: "Șters cu succes" });
+    } else {
+      return NextResponse.json(
+        { error: "Nu s-a găsit cardul" },
+        { status: 404 },
+      );
+    }
+  } catch (error) {
+    return NextResponse.json({ error: "Eroare la ștergere" }, { status: 500 });
   }
 }
